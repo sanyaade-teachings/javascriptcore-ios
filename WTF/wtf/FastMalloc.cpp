@@ -74,6 +74,9 @@
 // * allocation of a reasonably complicated struct
 //   goes from about 1100 ns to about 300 ns.
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-private-field"
+
 #include "config.h"
 #include "FastMalloc.h"
 
@@ -2474,10 +2477,7 @@ class TCMalloc_Central_FreeList {
 // Pad each CentralCache object to multiple of 64 bytes
 class TCMalloc_Central_FreeListPadded : public TCMalloc_Central_FreeList {
  private:
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-private-field"
   char pad_[(64 - (sizeof(TCMalloc_Central_FreeList) % 64)) % 64];
-#pragma clang diagnostic pop
 };
 
 //-------------------------------------------------------------------
@@ -4702,3 +4702,5 @@ void FastMallocZone::init()
 #endif // WTF_CHANGES
 
 #endif // FORCE_SYSTEM_MALLOC
+
+#pragma clang diagnostic pop
