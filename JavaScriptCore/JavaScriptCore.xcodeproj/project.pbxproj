@@ -4629,6 +4629,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = BC021BF2136900C300FC5467 /* ToolExecutable.xcconfig */;
 			buildSettings = {
+				COMPILER_SPECIFIC_WARNING_CFLAGS_LLVM_COMPILER = "-Wglobal-constructors";
 			};
 			name = Debug;
 		};
@@ -4636,6 +4637,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = BC021BF2136900C300FC5467 /* ToolExecutable.xcconfig */;
 			buildSettings = {
+				COMPILER_SPECIFIC_WARNING_CFLAGS_LLVM_COMPILER = "-Wglobal-constructors";
 			};
 			name = Release;
 		};
@@ -4643,6 +4645,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = BC021BF2136900C300FC5467 /* ToolExecutable.xcconfig */;
 			buildSettings = {
+				COMPILER_SPECIFIC_WARNING_CFLAGS_LLVM_COMPILER = "-Wglobal-constructors";
 			};
 			name = Profiling;
 		};
@@ -4650,6 +4653,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = BC021BF2136900C300FC5467 /* ToolExecutable.xcconfig */;
 			buildSettings = {
+				COMPILER_SPECIFIC_WARNING_CFLAGS_LLVM_COMPILER = "-Wglobal-constructors";
 			};
 			name = Production;
 		};
@@ -4678,6 +4682,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 1C9051430BA9E8A70081E9D0 /* JavaScriptCore.xcconfig */;
 			buildSettings = {
+				COMPILER_SPECIFIC_WARNING_CFLAGS_LLVM_COMPILER = "-Wglobal-constructors";
 				INSTALL_PATH = "$(BUILT_PRODUCTS_DIR)";
 			};
 			name = Debug;
@@ -4686,6 +4691,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 1C9051430BA9E8A70081E9D0 /* JavaScriptCore.xcconfig */;
 			buildSettings = {
+				COMPILER_SPECIFIC_WARNING_CFLAGS_LLVM_COMPILER = "-Wglobal-constructors";
 				INSTALL_PATH = "$(BUILT_PRODUCTS_DIR)";
 			};
 			name = Release;
@@ -4695,6 +4701,7 @@
 			baseConfigurationReference = 1C9051430BA9E8A70081E9D0 /* JavaScriptCore.xcconfig */;
 			buildSettings = {
 				BUILD_VARIANTS = normal;
+				COMPILER_SPECIFIC_WARNING_CFLAGS_LLVM_COMPILER = "-Wglobal-constructors";
 			};
 			name = Production;
 		};
@@ -4887,6 +4894,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 1C9051430BA9E8A70081E9D0 /* JavaScriptCore.xcconfig */;
 			buildSettings = {
+				COMPILER_SPECIFIC_WARNING_CFLAGS_LLVM_COMPILER = "-Wglobal-constructors";
 				INSTALL_PATH = "$(BUILT_PRODUCTS_DIR)";
 			};
 			name = Profiling;
@@ -5019,6 +5027,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = BC021BF2136900C300FC5467 /* ToolExecutable.xcconfig */;
 			buildSettings = {
+				COMPILER_SPECIFIC_WARNING_CFLAGS_LLVM_COMPILER = "-Wglobal-constructors";
 				HEADER_SEARCH_PATHS = (
 					.,
 					icu,
@@ -5038,6 +5047,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = BC021BF2136900C300FC5467 /* ToolExecutable.xcconfig */;
 			buildSettings = {
+				COMPILER_SPECIFIC_WARNING_CFLAGS_LLVM_COMPILER = "-Wglobal-constructors";
 				HEADER_SEARCH_PATHS = (
 					.,
 					icu,
@@ -5057,6 +5067,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = BC021BF2136900C300FC5467 /* ToolExecutable.xcconfig */;
 			buildSettings = {
+				COMPILER_SPECIFIC_WARNING_CFLAGS_LLVM_COMPILER = "-Wglobal-constructors";
 				HEADER_SEARCH_PATHS = (
 					.,
 					icu,
@@ -5076,6 +5087,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = BC021BF2136900C300FC5467 /* ToolExecutable.xcconfig */;
 			buildSettings = {
+				COMPILER_SPECIFIC_WARNING_CFLAGS_LLVM_COMPILER = "-Wglobal-constructors";
 				HEADER_SEARCH_PATHS = (
 					.,
 					icu,
