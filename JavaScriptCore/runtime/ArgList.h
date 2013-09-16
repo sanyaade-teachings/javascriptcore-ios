@@ -53,14 +53,7 @@ namespace JSC {
         {
         }
 
-        ~MarkedArgumentBuffer()
-        {
-            if (m_markSet)
-                m_markSet->remove(this);
-
-            if (EncodedJSValue* base = mallocBase())
-                delete [] base;
-        }
+        ~MarkedArgumentBuffer();
 
         size_t size() const { return m_size; }
         bool isEmpty() const { return !m_size; }
