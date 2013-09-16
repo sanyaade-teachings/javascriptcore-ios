@@ -446,7 +446,7 @@
 /* PLATFORM(IOS_SIMULATOR) */
 #if defined(TARGET_IPHONE_SIMULATOR) && TARGET_IPHONE_SIMULATOR
 #define WTF_PLATFORM_IOS 1
-#define WTF_PLATFORM_IOS_SIMULATOR 1
+// #define WTF_PLATFORM_IOS_SIMULATOR 0
 #endif
 
 /* Graphics engines */
@@ -592,7 +592,7 @@
 #define WTF_USE_CFNETWORK 1
 #define WTF_USE_PTHREADS 1
 
-#if PLATFORM(IOS_SIMULATOR)
+#if 0 // PLATFORM(IOS_SIMULATOR)
     #define ENABLE_CLASSIC_INTERPRETER 1
     #define ENABLE_JIT 0
     #define ENABLE_YARR_JIT 0
@@ -1104,12 +1104,11 @@
 #define WTF_USE_ZLIB 1
 #endif
 
-#endif /* WTF_Platform_h */
-
-
 // Disable the DFG JIT on the iPhone; it can't be used anyway.
 // This saves us about ~600kb
 #if defined(TARGET_OS_IPHONE) && defined(ENABLE_LLINT)
 	#undef ENABLE_DFG_JIT
 	#define ENABLE_DFG_JIT 0
 #endif
+
+#endif /* WTF_Platform_h */
