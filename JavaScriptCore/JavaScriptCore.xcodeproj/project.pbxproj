@@ -4683,7 +4683,9 @@
 			baseConfigurationReference = 1C9051430BA9E8A70081E9D0 /* JavaScriptCore.xcconfig */;
 			buildSettings = {
 				COMPILER_SPECIFIC_WARNING_CFLAGS_LLVM_COMPILER = "-Wglobal-constructors";
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				INSTALL_PATH = "$(BUILT_PRODUCTS_DIR)";
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 			};
 			name = Debug;
 		};
@@ -4692,7 +4694,9 @@
 			baseConfigurationReference = 1C9051430BA9E8A70081E9D0 /* JavaScriptCore.xcconfig */;
 			buildSettings = {
 				COMPILER_SPECIFIC_WARNING_CFLAGS_LLVM_COMPILER = "-Wglobal-constructors";
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				INSTALL_PATH = "$(BUILT_PRODUCTS_DIR)";
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 			};
 			name = Release;
 		};
@@ -4702,6 +4706,7 @@
 			buildSettings = {
 				BUILD_VARIANTS = normal;
 				COMPILER_SPECIFIC_WARNING_CFLAGS_LLVM_COMPILER = "-Wglobal-constructors";
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
 			};
 			name = Production;
 		};
@@ -4895,6 +4900,7 @@
 			baseConfigurationReference = 1C9051430BA9E8A70081E9D0 /* JavaScriptCore.xcconfig */;
 			buildSettings = {
 				COMPILER_SPECIFIC_WARNING_CFLAGS_LLVM_COMPILER = "-Wglobal-constructors";
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				INSTALL_PATH = "$(BUILT_PRODUCTS_DIR)";
 			};
 			name = Profiling;

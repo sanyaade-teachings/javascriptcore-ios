@@ -53,7 +53,7 @@ namespace JSC {
         {
         }
 
-        ~MarkedArgumentBuffer();
+        JS_EXPORT_PRIVATE ~MarkedArgumentBuffer();
 
         size_t size() const { return m_size; }
         bool isEmpty() const { return !m_size; }
