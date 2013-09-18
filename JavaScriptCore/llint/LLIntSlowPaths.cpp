@@ -26,6 +26,8 @@
 #include "config.h"
 #include "LLIntSlowPaths.h"
 
+#define TZ_UNROLL_VALUE_GET 1
+
 #if ENABLE(LLINT)
 
 #include "Arguments.h"
@@ -844,6 +846,55 @@ LLINT_SLOW_PATH_DECL(slow_path_get_by_id)
     JSValue baseValue = LLINT_OP_C(2).jsValue();
     PropertySlot slot(baseValue);
 
+#if defined(TZ_UNROLL_VALUE_GET)
+    JSValue result;
+
+    const bool _baseIsCell = baseValue.isCell();
+    if (LIKELY(_baseIsCell)) {
+
+        JSCell* cell = baseValue.asCell();
+        while (true) {
+            if (cell->fastGetOwnPropertySlot(exec, ident, slot)) {
+                result = slot.getValue(exec, ident);
+                break;
+            }
+            JSValue prototype = asObject(cell)->prototype();
+            if (!prototype.isObject()) {
+                result = jsUndefined();
+                break;
+            }
+            cell = asObject(prototype);
+        }
+
+        // JSValue result = baseValue.get(exec, ident, slot);
+        LLINT_CHECK_EXCEPTION();
+        LLINT_OP(1) = result;
+
+        if (slot.isCacheable()
+            && slot.slotBase() == baseValue
+            && slot.cachedPropertyType() == PropertySlot::Value) {
+
+            JSCell* baseCell = baseValue.asCell();
+            Structure* structure = baseCell->structure();
+
+            if (!structure->isUncacheableDictionary()
+                && !structure->typeInfo().prohibitsPropertyCaching()) {
+                pc[4].u.structure.set
+                    (globalData, codeBlock->ownerExecutable(), structure);
+                pc[5].u.operand = slot.cachedOffset() * sizeof(JSValue);
+            }
+        }
+
+    } else {
+
+        result = baseValue.get(exec, ident, slot);
+        LLINT_CHECK_EXCEPTION();
+        LLINT_OP(1) = result;
+
+    }
+#else
+    // tblz: this is the original code
+
     JSValue result = baseValue.get(exec, ident, slot);
     LLINT_CHECK_EXCEPTION();
     LLINT_OP(1) = result;
@@ -863,6 +914,7 @@ LLINT_SLOW_PATH_DECL(slow_path_get_by_id)
             pc[5].u.operand = slot.cachedOffset() * sizeof(JSValue);
         }
     }
+#endif // else // if defined(TZ_UNROLL_VALUE_GET)
 
 #if ENABLE(VALUE_PROFILER)    
     pc[OPCODE_LENGTH(op_get_by_id) - 1].u.profile->m_buckets[0] = JSValue::encode(result);
