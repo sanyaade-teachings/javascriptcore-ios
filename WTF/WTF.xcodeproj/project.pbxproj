@@ -1755,6 +1755,8 @@
 			buildSettings = {
 				COMPILER_SPECIFIC_WARNING_CFLAGS_LLVM_COMPILER = "-Wglobal-constructors";
 				DEBUG_DEFINES = "$(DEBUG_DEFINES_debug)";
+				GCC_ENABLE_OBJC_GC_macosx = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				WARNING_CFLAGS_BASE = "-Wextra -Wcast-qual -Wchar-subscripts -Wextra-tokens -Wformat=2 -Winit-self -Wmissing-format-attribute -Wmissing-noreturn -Wpacked -Wpointer-arith -Wredundant-decls -Wundef -Wwrite-strings";
 			};
@@ -1765,6 +1767,8 @@
 			baseConfigurationReference = 5D247B7314689C4700E78B76 /* WTF.xcconfig */;
 			buildSettings = {
 				COMPILER_SPECIFIC_WARNING_CFLAGS_LLVM_COMPILER = "-Wglobal-constructors";
+				GCC_ENABLE_OBJC_GC_macosx = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				WARNING_CFLAGS_BASE = "-Wextra -Wcast-qual -Wchar-subscripts -Wextra-tokens -Wformat=2 -Winit-self -Wmissing-format-attribute -Wmissing-noreturn -Wpacked -Wpointer-arith -Wredundant-decls -Wundef -Wwrite-strings";
 			};
@@ -1782,6 +1786,8 @@
 			baseConfigurationReference = 5D247B7314689C4700E78B76 /* WTF.xcconfig */;
 			buildSettings = {
 				COMPILER_SPECIFIC_WARNING_CFLAGS_LLVM_COMPILER = "-Wglobal-constructors";
+				GCC_ENABLE_OBJC_GC_macosx = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				WARNING_CFLAGS_BASE = "-Wextra -Wcast-qual -Wchar-subscripts -Wextra-tokens -Wformat=2 -Winit-self -Wmissing-format-attribute -Wmissing-noreturn -Wpacked -Wpointer-arith -Wredundant-decls -Wundef -Wwrite-strings";
 			};
