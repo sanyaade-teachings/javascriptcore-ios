@@ -1,7 +1,7 @@
 /*
  *  Copyright (C) 1999-2001 Harri Porten (porten@kde.org)
  *  Copyright (C) 2001 Peter Kelly (pmk@post.com)
- *  Copyright (C) 2003, 2007 Apple Inc.
+ *  Copyright (C) 2003, 2007, 2013 Apple Inc.
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -25,20 +25,20 @@
 
 #include "CallFrame.h"
 #include "CodeProfiling.h"
+#include "Debugger.h"
+#include "Interpreter.h"
 #include "JSGlobalObject.h"
 #include "JSLock.h"
-#include "Interpreter.h"
+#include "Operations.h"
 #include "Parser.h"
-#include "Debugger.h"
 #include <wtf/WTFThreadData.h>
-#include <stdio.h>
 
 namespace JSC {
 
 bool checkSyntax(ExecState* exec, const SourceCode& source, JSValue* returnedException)
 {
     JSLockHolder lock(exec);
-    ASSERT(exec->globalData().identifierTable == wtfThreadData().currentIdentifierTable());
+    RELEASE_ASSERT(exec->vm().identifierTable == wtfThreadData().currentIdentifierTable());
 
     ProgramExecutable* program = ProgramExecutable::create(exec, source);
     JSObject* error = program->checkSyntax(exec);
@@ -50,27 +50,36 @@ bool checkSyntax(ExecState* exec, const SourceCode& source, JSValue* returnedExc
 
     return true;
 }
+    
+bool checkSyntax(VM& vm, const SourceCode& source, ParserError& error)
+{
+    JSLockHolder lock(vm);
+    RELEASE_ASSERT(vm.identifierTable == wtfThreadData().currentIdentifierTable());
+    RefPtr<ProgramNode> programNode = parse<ProgramNode>(&vm, source, 0, Identifier(), JSParseNormal, JSParseProgramCode, error);
+    return programNode;
+}
 
-JSValue evaluate(ExecState* exec, ScopeChainNode* scopeChain, const SourceCode& source, JSValue thisValue, JSValue* returnedException)
+JSValue evaluate(ExecState* exec, const SourceCode& source, JSValue thisValue, JSValue* returnedException)
 {
     JSLockHolder lock(exec);
-    ASSERT(exec->globalData().identifierTable == wtfThreadData().currentIdentifierTable());
+    RELEASE_ASSERT(exec->vm().identifierTable == wtfThreadData().currentIdentifierTable());
+    RELEASE_ASSERT(!exec->vm().isCollectorBusy());
 
     CodeProfiling profile(source);
 
     ProgramExecutable* program = ProgramExecutable::create(exec, source);
     if (!program) {
         if (returnedException)
-            *returnedException = exec->globalData().exception;
+            *returnedException = exec->vm().exception();
 
-        exec->globalData().exception = JSValue();
+        exec->vm().clearException();
         return jsUndefined();
     }
 
     if (!thisValue || thisValue.isUndefinedOrNull())
-        thisValue = exec->dynamicGlobalObject();
-    JSObject* thisObj = thisValue.toThisObject(exec);
-    JSValue result = exec->interpreter()->execute(program, exec, scopeChain, thisObj);
+        thisValue = exec->vmEntryGlobalObject();
+    JSObject* thisObj = jsCast<JSObject*>(thisValue.toThis(exec, NotStrictMode));
+    JSValue result = exec->interpreter()->execute(program, exec, thisObj);
 
     if (exec->hadException()) {
         if (returnedException)
@@ -80,7 +89,7 @@ JSValue evaluate(ExecState* exec, ScopeChainNode* scopeChain, const SourceCode& 
         return jsUndefined();
     }
 
-    ASSERT(result);
+    RELEASE_ASSERT(result);
     return result;
 }
 

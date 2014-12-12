@@ -31,7 +31,9 @@
 #ifndef WTF_SHA1_h
 #define WTF_SHA1_h
 
+#include <array>
 #include <wtf/Vector.h>
+#include <wtf/text/CString.h>
 
 namespace WTF {
 
@@ -43,10 +45,32 @@ public:
     {
         addBytes(input.data(), input.size());
     }
+    void addBytes(const CString& input)
+    {
+        const char* string = input.data();
+        // Make sure that the creator of the CString didn't make the mistake
+        // of forcing length() to be the size of the buffer used to create the
+        // string, prior to inserting the null terminator earlier in the
+        // sequence.
+        ASSERT(input.length() == strlen(string));
+        addBytes(reinterpret_cast<const uint8_t*>(string), input.length());
+    }
     WTF_EXPORT_PRIVATE void addBytes(const uint8_t* input, size_t length);
 
+    // Size of the SHA1 hash
+    WTF_EXPORT_PRIVATE static const size_t hashSize = 20;
+
+    // type for computing SHA1 hash
+    typedef std::array<uint8_t, hashSize> Digest;
+
     // computeHash has a side effect of resetting the state of the object.
-    WTF_EXPORT_PRIVATE void computeHash(Vector<uint8_t, 20>&);
+    WTF_EXPORT_PRIVATE void computeHash(Digest&);
+    
+    // Get a hex hash from the digest.
+    WTF_EXPORT_PRIVATE static CString hexDigest(const Digest&);
+    
+    // Compute the hex digest directly.
+    WTF_EXPORT_PRIVATE CString computeHexDigest();
 
 private:
     void finalize();

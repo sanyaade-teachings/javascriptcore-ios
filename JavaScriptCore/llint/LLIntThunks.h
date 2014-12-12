@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Apple Inc. All rights reserved.
+ * Copyright (C) 2012, 2013 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -34,16 +34,27 @@
 
 namespace JSC {
 
-class JSGlobalData;
+class ExecState;
+class Register;
+class VM;
+struct ProtoCallFrame;
+
+extern "C" {
+    EncodedJSValue callToJavaScript(void*, ExecState**, ProtoCallFrame*, Register*);
+    EncodedJSValue callToNativeFunction(void*, ExecState**, ProtoCallFrame*, Register*);
+#if ENABLE(JIT)
+    void returnFromJavaScript();
+#endif
+}
 
 namespace LLInt {
 
-MacroAssemblerCodeRef functionForCallEntryThunkGenerator(JSGlobalData*);
-MacroAssemblerCodeRef functionForConstructEntryThunkGenerator(JSGlobalData*);
-MacroAssemblerCodeRef functionForCallArityCheckThunkGenerator(JSGlobalData*);
-MacroAssemblerCodeRef functionForConstructArityCheckThunkGenerator(JSGlobalData*);
-MacroAssemblerCodeRef evalEntryThunkGenerator(JSGlobalData*);
-MacroAssemblerCodeRef programEntryThunkGenerator(JSGlobalData*);
+MacroAssemblerCodeRef functionForCallEntryThunkGenerator(VM*);
+MacroAssemblerCodeRef functionForConstructEntryThunkGenerator(VM*);
+MacroAssemblerCodeRef functionForCallArityCheckThunkGenerator(VM*);
+MacroAssemblerCodeRef functionForConstructArityCheckThunkGenerator(VM*);
+MacroAssemblerCodeRef evalEntryThunkGenerator(VM*);
+MacroAssemblerCodeRef programEntryThunkGenerator(VM*);
 
 } } // namespace JSC::LLInt
 

@@ -22,7 +22,7 @@
 #ifndef GOwnPtr_h
 #define GOwnPtr_h
 
-#if ENABLE(GLIB_SUPPORT)
+#if USE(GLIB)
 
 #include <algorithm>
 #include <wtf/Assertions.h>
@@ -33,7 +33,7 @@ extern "C" void g_free(void*);
 namespace WTF {
 
 template <typename T> inline void freeOwnedGPtr(T* ptr);
-template<> void freeOwnedGPtr<GError>(GError*);
+template<> WTF_EXPORT_PRIVATE void freeOwnedGPtr<GError>(GError*);
 template<> void freeOwnedGPtr<GList>(GList*);
 template<> void freeOwnedGPtr<GSList>(GSList*);
 template<> void freeOwnedGPtr<GPatternSpec>(GPatternSpec*);
@@ -138,7 +138,7 @@ template <typename T> inline void freeOwnedGPtr(T* ptr)
 
 using WTF::GOwnPtr;
 
-#endif // ENABLE(GLIB_SUPPORT)
+#endif // USE(GLIB)
 
 #endif // GOwnPtr_h
 

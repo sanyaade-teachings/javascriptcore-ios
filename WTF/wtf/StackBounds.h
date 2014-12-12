@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Apple Inc. All Rights Reserved.
+ * Copyright (C) 2010, 2013 Apple Inc. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -30,17 +30,14 @@
 namespace WTF {
 
 class StackBounds {
-    // recursionCheck() / recursionLimit() tests (by default)
-    // that we are at least this far from the end of the stack.
-    const static size_t s_defaultAvailabilityDelta = 4096;
+    // This 64k number was picked because a sampling of stack usage differences
+    // between consecutive entries into one of the Interpreter::execute...()
+    // functions was seen to be as high as 27k. Hence, 64k is chosen as a
+    // conservative availability value that is not too large but comfortably
+    // exceeds 27k with some buffer for error.
+    const static size_t s_defaultAvailabilityDelta = 64 * 1024;
 
 public:
-    StackBounds()
-        : m_origin(0)
-        , m_bound(0)
-    {
-    }
-
     static StackBounds currentThreadStackBounds()
     {
         StackBounds bounds;
@@ -55,32 +52,20 @@ public:
         return m_origin;
     }
 
-    void* current() const
+    size_t size() const
     {
-        checkConsistency();
-        void* currentPosition = &currentPosition;
-        return currentPosition;
+        if (isGrowingDownward())
+            return static_cast<char*>(m_origin) - static_cast<char*>(m_bound);
+        return static_cast<char*>(m_bound) - static_cast<char*>(m_origin);
     }
 
     void* recursionLimit(size_t minAvailableDelta = s_defaultAvailabilityDelta) const
     {
         checkConsistency();
-        return isGrowingDownward()
-            ? static_cast<char*>(m_bound) + minAvailableDelta
-            : static_cast<char*>(m_bound) - minAvailableDelta;
+        if (isGrowingDownward())
+            return static_cast<char*>(m_bound) + minAvailableDelta;
+        return static_cast<char*>(m_bound) - minAvailableDelta;
     }
-
-    bool recursionCheck(size_t minAvailableDelta = s_defaultAvailabilityDelta) const
-    {
-        checkConsistency();
-        return isGrowingDownward()
-            ? current() >= recursionLimit(minAvailableDelta)
-            : current() <= recursionLimit(minAvailableDelta);
-    }
-
-private:
-    void initialize();
-
 
     bool isGrowingDownward() const
     {
@@ -91,6 +76,15 @@ private:
         return true;
 #endif
     }
+
+private:
+    StackBounds()
+        : m_origin(0)
+        , m_bound(0)
+    {
+    }
+
+    WTF_EXPORT_PRIVATE void initialize();
 
     void checkConsistency() const
     {
@@ -105,6 +99,8 @@ private:
 
     void* m_origin;
     void* m_bound;
+
+    friend class StackStats;
 };
 
 } // namespace WTF

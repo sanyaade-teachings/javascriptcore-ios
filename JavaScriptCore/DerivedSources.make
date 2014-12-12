@@ -1,17 +1,17 @@
-# Copyright (C) 2006, 2007, 2008, 2009, 2011 Apple Inc. All rights reserved.
+# Copyright (C) 2006, 2007, 2008, 2009, 2011, 2013 Apple Inc. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
 #
 # 1.  Redistributions of source code must retain the above copyright
-#     notice, this list of conditions and the following disclaimer. 
+#     notice, this list of conditions and the following disclaimer.
 # 2.  Redistributions in binary form must reproduce the above copyright
 #     notice, this list of conditions and the following disclaimer in the
-#     documentation and/or other materials provided with the distribution. 
+#     documentation and/or other materials provided with the distribution.
 # 3.  Neither the name of Apple Computer, Inc. ("Apple") nor the names of
 #     its contributors may be used to endorse or promote products derived
-#     from this software without specific prior written permission. 
+#     from this software without specific prior written permission.
 #
 # THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
 # EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -27,7 +27,6 @@
 VPATH = \
     $(JavaScriptCore) \
     $(JavaScriptCore)/parser \
-    $(JavaScriptCore)/docs \
     $(JavaScriptCore)/runtime \
     $(JavaScriptCore)/interpreter \
     $(JavaScriptCore)/jit \
@@ -41,23 +40,23 @@ all : \
     DateConstructor.lut.h \
     DatePrototype.lut.h \
     ErrorPrototype.lut.h \
-    HeaderDetection.h \
+    JSDataViewPrototype.lut.h \
     JSONObject.lut.h \
     JSGlobalObject.lut.h \
+    JSPromisePrototype.lut.h \
+    JSPromiseConstructor.lut.h \
     KeywordLookup.h \
     Lexer.lut.h \
-    MathObject.lut.h \
+    NamePrototype.lut.h \
     NumberConstructor.lut.h \
     NumberPrototype.lut.h \
     ObjectConstructor.lut.h \
-    ObjectPrototype.lut.h \
     RegExpConstructor.lut.h \
     RegExpPrototype.lut.h \
     RegExpJitTables.h \
     RegExpObject.lut.h \
     StringConstructor.lut.h \
-    StringPrototype.lut.h \
-    docs/bytecode.html \
+    udis86_itab.h \
 #
 
 # lookup tables for classes
@@ -67,9 +66,6 @@ all : \
 Lexer.lut.h: create_hash_table Keywords.table
 	$^ > $@
 
-docs/bytecode.html: make-bytecode-docs.pl Interpreter.cpp 
-	perl $^ $@
-
 # character tables for Yarr
 
 RegExpJitTables.h: create_regex_tables
@@ -78,18 +74,34 @@ RegExpJitTables.h: create_regex_tables
 KeywordLookup.h: KeywordLookupGenerator.py Keywords.table
 	python $^ > $@
 
-# header detection
+# udis86 instruction tables
 
-ifeq ($(OS),MACOS)
+udis86_itab.h: $(JavaScriptCore)/disassembler/udis86/itab.py $(JavaScriptCore)/disassembler/udis86/optable.xml
+	(PYTHONPATH=$(JavaScriptCore)/disassembler/udis86 python $(JavaScriptCore)/disassembler/udis86/itab.py $(JavaScriptCore)/disassembler/udis86/optable.xml || exit 1)
 
-HeaderDetection.h : DerivedSources.make /System/Library/CoreServices/SystemVersion.plist
-	rm -f $@
-	echo "/* This is a generated file. Do not edit. */" > $@
-	if [ -f $(SDKROOT)/System/Library/Frameworks/System.framework/PrivateHeaders/pthread_machdep.h ]; then echo "#define HAVE_PTHREAD_MACHDEP_H 1" >> $@; else echo >> $@; fi
 
-else
+# Inspector interfaces
 
-HeaderDetection.h :
-	echo > $@
+INSPECTOR_DOMAINS = \
+    $(JavaScriptCore)/inspector/protocol/Debugger.json \
+    $(JavaScriptCore)/inspector/protocol/GenericTypes.json \
+    $(JavaScriptCore)/inspector/protocol/InspectorDomain.json \
+    $(JavaScriptCore)/inspector/protocol/Runtime.json \
+#
 
-endif
+INSPECTOR_GENERATOR_SCRIPTS = \
+	$(JavaScriptCore)/inspector/scripts/CodeGeneratorInspector.py \
+	$(JavaScriptCore)/inspector/scripts/CodeGeneratorInspectorStrings.py \
+#
+
+all : \
+    InspectorJS.json \
+    InspectorJSFrontendDispatchers.h \
+#
+
+InspectorJS.json : inspector/scripts/generate-combined-inspector-json.py $(INSPECTOR_DOMAINS)
+	python $(JavaScriptCore)/inspector/scripts/generate-combined-inspector-json.py $(JavaScriptCore)/inspector/protocol > ./InspectorJS.json
+
+# Inspector Backend Dispatchers, Frontend Dispatchers, Type Builders
+InspectorJSFrontendDispatchers.h : InspectorJS.json $(INSPECTOR_GENERATOR_SCRIPTS)
+	python $(JavaScriptCore)/inspector/scripts/CodeGeneratorInspector.py ./InspectorJS.json --output_h_dir . --output_cpp_dir . --output_js_dir . --output_type JavaScript

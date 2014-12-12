@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Apple Inc. All rights reserved.
+ * Copyright (C) 2012, 2013 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -27,45 +27,42 @@
 #include "JITExceptions.h"
 
 #include "CallFrame.h"
+#include "CallFrameInlines.h"
 #include "CodeBlock.h"
 #include "Interpreter.h"
-#include "JSGlobalData.h"
-#include "JSValue.h"
-
-#if ENABLE(JIT)
+#include "JITStubs.h"
+#include "JSCJSValue.h"
+#include "LLIntData.h"
+#include "LLIntOpcode.h"
+#include "LLIntThunks.h"
+#include "Opcode.h"
+#include "Operations.h"
+#include "VM.h"
 
 namespace JSC {
 
-ExceptionHandler genericThrow(JSGlobalData* globalData, ExecState* callFrame, JSValue exceptionValue, unsigned vPCIndex)
+void genericUnwind(VM* vm, ExecState* callFrame, JSValue exceptionValue)
 {
-    ASSERT(exceptionValue);
-
-    globalData->exception = JSValue();
-    HandlerInfo* handler = globalData->interpreter->throwException(callFrame, exceptionValue, vPCIndex); // This may update callFrame & exceptionValue!
-    globalData->exception = exceptionValue;
+    RELEASE_ASSERT(exceptionValue);
+    HandlerInfo* handler = vm->interpreter->unwind(callFrame, exceptionValue); // This may update callFrame.
 
     void* catchRoutine;
     Instruction* catchPCForInterpreter = 0;
     if (handler) {
-        catchRoutine = handler->nativeCode.executableAddress();
         catchPCForInterpreter = &callFrame->codeBlock()->instructions()[handler->target];
-    } else
-        catchRoutine = FunctionPtr(ctiOpThrowNotCaught).value();
-    
-    globalData->callFrameForThrow = callFrame;
-    globalData->targetMachinePCForThrow = catchRoutine;
-    globalData->targetInterpreterPCForThrow = catchPCForInterpreter;
-    
-    ASSERT(catchRoutine);
-    ExceptionHandler exceptionHandler = { catchRoutine, callFrame };
-    return exceptionHandler;
-}
-
-ExceptionHandler jitThrow(JSGlobalData* globalData, ExecState* callFrame, JSValue exceptionValue, ReturnAddressPtr faultLocation)
-{
-    return genericThrow(globalData, callFrame, exceptionValue, callFrame->codeBlock()->bytecodeOffset(callFrame, faultLocation));
-}
-
-}
-
+#if ENABLE(JIT)
+        catchRoutine = handler->nativeCode.executableAddress();
+#else
+        catchRoutine = catchPCForInterpreter->u.pointer;
 #endif
+    } else
+        catchRoutine = LLInt::getCodePtr(returnFromJavaScript);
+    
+    vm->callFrameForThrow = callFrame;
+    vm->targetMachinePCForThrow = catchRoutine;
+    vm->targetInterpreterPCForThrow = catchPCForInterpreter;
+    
+    RELEASE_ASSERT(catchRoutine);
+}
+
+} // namespace JSC

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Apple Inc. All rights reserved.
+ * Copyright (C) 2011, 2013 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -30,6 +30,9 @@
 
 #include "DFGGraph.h"
 #include "DFGScoreBoard.h"
+#include "JSCellInlines.h"
+#include "StackAlignment.h"
+#include <wtf/StdLibExtras.h>
 
 namespace JSC { namespace DFG {
 
@@ -40,94 +43,72 @@ public:
     {
     }
     
-    void run()
+    bool run()
     {
-#if DFG_ENABLE(DEBUG_VERBOSE)
-        dataLog("Preserved vars: ");
-        m_graph.m_preservedVars.dump(WTF::dataFile());
-        dataLog("\n");
-#endif
-        ScoreBoard scoreBoard(m_graph, m_graph.m_preservedVars);
+        ScoreBoard scoreBoard(m_graph.m_nextMachineLocal);
         scoreBoard.assertClear();
-#if DFG_ENABLE(DEBUG_PROPAGATION_VERBOSE)
-        bool needsNewLine = false;
-#endif
-        for (size_t blockIndex = 0; blockIndex < m_graph.m_blocks.size(); ++blockIndex) {
-            BasicBlock* block = m_graph.m_blocks[blockIndex].get();
+        for (size_t blockIndex = 0; blockIndex < m_graph.numBlocks(); ++blockIndex) {
+            BasicBlock* block = m_graph.block(blockIndex);
+            if (!block)
+                continue;
+            if (!block->isReachable)
+                continue;
             for (size_t indexInBlock = 0; indexInBlock < block->size(); ++indexInBlock) {
-                NodeIndex nodeIndex = block->at(indexInBlock);
-#if DFG_ENABLE(DEBUG_PROPAGATION_VERBOSE)
-                if (needsNewLine)
-                    dataLog("\n");
-                dataLog("   @%u:", nodeIndex);
-                needsNewLine = true;
-#endif
-                Node& node = m_graph[nodeIndex];
+                Node* node = block->at(indexInBlock);
         
-                if (!node.shouldGenerate() || node.op() == Phi || node.op() == Flush)
+                if (!node->shouldGenerate())
                     continue;
-            
-                // GetLocal nodes are effectively phi nodes in the graph, referencing
-                // results from prior blocks.
-                if (node.op() != GetLocal) {
-                    // First, call use on all of the current node's children, then
-                    // allocate a VirtualRegister for this node. We do so in this
-                    // order so that if a child is on its last use, and a
-                    // VirtualRegister is freed, then it may be reused for node.
-                    if (node.flags() & NodeHasVarArgs) {
-                        for (unsigned childIdx = node.firstChild(); childIdx < node.firstChild() + node.numChildren(); childIdx++)
-                            scoreBoard.use(m_graph.m_varArgChildren[childIdx]);
-                    } else {
-                        scoreBoard.use(node.child1());
-                        scoreBoard.use(node.child2());
-                        scoreBoard.use(node.child3());
-                    }
+                
+                switch (node->op()) {
+                case Phi:
+                case Flush:
+                case PhantomLocal:
+                    continue;
+                case GetLocal:
+                    ASSERT(!node->child1()->hasResult());
+                    break;
+                default:
+                    break;
+                }
+                
+                // First, call use on all of the current node's children, then
+                // allocate a VirtualRegister for this node. We do so in this
+                // order so that if a child is on its last use, and a
+                // VirtualRegister is freed, then it may be reused for node.
+                if (node->flags() & NodeHasVarArgs) {
+                    for (unsigned childIdx = node->firstChild(); childIdx < node->firstChild() + node->numChildren(); childIdx++)
+                        scoreBoard.useIfHasResult(m_graph.m_varArgChildren[childIdx]);
+                } else {
+                    scoreBoard.useIfHasResult(node->child1());
+                    scoreBoard.useIfHasResult(node->child2());
+                    scoreBoard.useIfHasResult(node->child3());
                 }
 
-                if (!node.hasResult())
+                if (!node->hasResult())
                     continue;
 
                 VirtualRegister virtualRegister = scoreBoard.allocate();
-#if DFG_ENABLE(DEBUG_PROPAGATION_VERBOSE)
-                dataLog(" Assigning virtual register %u to node %u.",
-                        virtualRegister, nodeIndex);
-#endif
-                node.setVirtualRegister(virtualRegister);
+                node->setVirtualRegister(virtualRegister);
                 // 'mustGenerate' nodes have their useCount artificially elevated,
                 // call use now to account for this.
-                if (node.mustGenerate())
-                    scoreBoard.use(nodeIndex);
+                if (node->mustGenerate())
+                    scoreBoard.use(node);
             }
             scoreBoard.assertClear();
         }
-#if DFG_ENABLE(DEBUG_PROPAGATION_VERBOSE)
-        if (needsNewLine)
-            dataLog("\n");
-#endif
+        
+        // Record the number of virtual registers we're using. This is used by calls
+        // to figure out where to put the parameters.
+        m_graph.m_nextMachineLocal = scoreBoard.highWatermark();
 
-        // 'm_numCalleeRegisters' is the number of locals and temporaries allocated
-        // for the function (and checked for on entry). Since we perform a new and
-        // different allocation of temporaries, more registers may now be required.
-        unsigned calleeRegisters = scoreBoard.highWatermark() + m_graph.m_parameterSlots;
-        size_t inlineCallFrameCount = codeBlock()->inlineCallFrames().size();
-        for (size_t i = 0; i < inlineCallFrameCount; i++) {
-            InlineCallFrame& inlineCallFrame = codeBlock()->inlineCallFrames()[i];
-            CodeBlock* codeBlock = baselineCodeBlockForInlineCallFrame(&inlineCallFrame);
-            unsigned requiredCalleeRegisters = inlineCallFrame.stackOffset + codeBlock->m_numCalleeRegisters;
-            if (requiredCalleeRegisters > calleeRegisters)
-                calleeRegisters = requiredCalleeRegisters;
-        }
-        if ((unsigned)codeBlock()->m_numCalleeRegisters < calleeRegisters)
-            codeBlock()->m_numCalleeRegisters = calleeRegisters;
-#if DFG_ENABLE(DEBUG_VERBOSE)
-        dataLog("Num callee registers: %u\n", calleeRegisters);
-#endif
+        return true;
     }
 };
 
-void performVirtualRegisterAllocation(Graph& graph)
+bool performVirtualRegisterAllocation(Graph& graph)
 {
-    runPhase<VirtualRegisterAllocationPhase>(graph);
+    SamplingRegion samplingRegion("DFG Virtual Register Allocation Phase");
+    return runPhase<VirtualRegisterAllocationPhase>(graph);
 }
 
 } } // namespace JSC::DFG

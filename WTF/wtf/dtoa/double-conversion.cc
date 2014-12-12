@@ -102,8 +102,9 @@ namespace double_conversion {
         }
         ASSERT(exponent < 1e4);
         const int kMaxExponentLength = 5;
-        char buffer[kMaxExponentLength];
+        char buffer[kMaxExponentLength + 1];
         int first_char_pos = kMaxExponentLength;
+        buffer[first_char_pos] = '\0';
         while (exponent > 0) {
             buffer[--first_char_pos] = '0' + (exponent % 10);
             exponent /= 10;
@@ -359,7 +360,7 @@ namespace double_conversion {
                                                 bool* sign,
                                                 int* length,
                                                 int* point) {
-        Vector<char> vector(buffer, buffer_length);
+        BufferReference<char> vector(buffer, buffer_length);
         ASSERT(!Double(v).IsSpecial());
         ASSERT(mode == SHORTEST || requested_digits >= 0);
         
@@ -443,9 +444,9 @@ namespace double_conversion {
         if (current == end) return 0.0;
         
         // The longest form of simplified number is: "-<significant digits>.1eXXX\0".
-        const int kBufferSize = kMaxSignificantDigits + 10;
+        const unsigned kBufferSize = kMaxSignificantDigits + 10;
         char buffer[kBufferSize];  // NOLINT: size is known at compile time.
-        int buffer_pos = 0;
+        unsigned buffer_pos = 0;
         
         // Exponent will be adjusted if insignificant digits of the integer part
         // or insignificant leading zeros of the fractional part are dropped.
@@ -595,7 +596,7 @@ namespace double_conversion {
         ASSERT(buffer_pos < kBufferSize);
         buffer[buffer_pos] = '\0';
         
-        double converted = Strtod(Vector<const char>(buffer, buffer_pos), exponent);
+        double converted = Strtod(BufferReference<const char>(buffer, buffer_pos), exponent);
         *processed_characters_count = current - input;
         return sign? -converted: converted;
     }

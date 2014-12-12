@@ -31,12 +31,15 @@
 
 #include "ExecutableAllocator.h"
 #include "Heap.h"
+#include "HeapStatistics.h"
 #include "Options.h"
 #include "Identifier.h"
 #include "JSDateMath.h"
 #include "JSGlobalObject.h"
-#include "UString.h"
+#include "JSLock.h"
+#include "LLIntData.h"
 #include "WriteBarrier.h"
+#include <mutex>
 #include <wtf/dtoa.h>
 #include <wtf/Threading.h>
 #include <wtf/dtoa/cached-powers.h>
@@ -45,35 +48,31 @@ using namespace WTF;
 
 namespace JSC {
 
-#if OS(DARWIN)
-static pthread_once_t initializeThreadingKeyOnce = PTHREAD_ONCE_INIT;
-#endif
-
-static void initializeThreadingOnce()
-{
-    WTF::double_conversion::initialize();
-    WTF::initializeThreading();
-    Options::initializeOptions();
-#if ENABLE(WRITE_BARRIER_PROFILING)
-    WriteBarrierCounters::initialize();
-#endif
-#if ENABLE(ASSEMBLER)
-    ExecutableAllocator::initializeAllocator();
-#endif
-    RegisterFile::initializeThreading();
-}
-
 void initializeThreading()
 {
-#if OS(DARWIN)
-    pthread_once(&initializeThreadingKeyOnce, initializeThreadingOnce);
-#else
-    static bool initializedThreading = false;
-    if (!initializedThreading) {
-        initializeThreadingOnce();
-        initializedThreading = true;
-    }
+    static std::once_flag initializeThreadingOnceFlag;
+
+    std::call_once(initializeThreadingOnceFlag, []{
+        WTF::double_conversion::initialize();
+        WTF::initializeThreading();
+        GlobalJSLock::initialize();
+        Options::initialize();
+        if (Options::recordGCPauseTimes())
+            HeapStatistics::initialize();
+#if ENABLE(WRITE_BARRIER_PROFILING)
+        WriteBarrierCounters::initialize();
 #endif
+#if ENABLE(ASSEMBLER)
+        ExecutableAllocator::initializeAllocator();
+#endif
+        JSStack::initializeThreading();
+#if ENABLE(LLINT)
+        LLInt::initialize();
+#endif
+#ifndef NDEBUG
+        DisallowGC::initialize();
+#endif
+    });
 }
 
 } // namespace JSC

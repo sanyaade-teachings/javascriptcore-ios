@@ -19,14 +19,14 @@
 #include "config.h"
 #include "GOwnPtr.h"
 
-#if ENABLE(GLIB_SUPPORT)
+#if USE(GLIB)
 
 #include <gio/gio.h>
 #include <glib.h>
 
 namespace WTF {
 
-template <> void freeOwnedGPtr<GError>(GError* ptr)
+template <> WTF_EXPORT_PRIVATE void freeOwnedGPtr<GError>(GError* ptr)
 {
     if (ptr)
         g_error_free(ptr);
@@ -68,4 +68,4 @@ template <> void freeOwnedGPtr<GKeyFile>(GKeyFile* ptr)
 
 } // namespace WTF
 
-#endif // ENABLE(GLIB_SUPPORT)
+#endif // USE(GLIB)

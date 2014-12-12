@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Apple Inc. All rights reserved.
+ * Copyright (C) 2009, 2013 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -26,34 +26,33 @@
 #ifndef CallFrameClosure_h
 #define CallFrameClosure_h
 
+#include "ProtoCallFrame.h"
+
 namespace JSC {
 
 struct CallFrameClosure {
     CallFrame* oldCallFrame;
-    CallFrame* newCallFrame;
+    ProtoCallFrame* protoCallFrame;
     JSFunction* function;
     FunctionExecutable* functionExecutable;
-    JSGlobalData* globalData;
-    Register* oldEnd;
-    ScopeChainNode* scopeChain;
+    VM* vm;
+    JSScope* scope;
     int parameterCountIncludingThis;
     int argumentCountIncludingThis;
     
     void setThis(JSValue value)
     {
-        newCallFrame->setThisValue(value);
+        protoCallFrame->setThisValue(value);
     }
 
     void setArgument(int argument, JSValue value)
     {
-        newCallFrame->setArgument(argument, value);
+        protoCallFrame->setArgument(argument, value);
     }
 
     void resetCallFrame()
     {
-        newCallFrame->setScopeChain(scopeChain);
-        for (int i = argumentCountIncludingThis; i < parameterCountIncludingThis; ++i)
-            newCallFrame->setArgument(i, jsUndefined());
+        protoCallFrame->setScope(scope);
     }
 };
 
