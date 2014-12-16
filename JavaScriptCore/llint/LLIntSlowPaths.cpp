@@ -26,7 +26,7 @@
 #include "config.h"
 #include "LLIntSlowPaths.h"
 
-#define TZ_UNROLL_VALUE_GET 1
+#define TZ_UNROLL_VALUE_GETx 1
 
 #if ENABLE(LLINT)
 

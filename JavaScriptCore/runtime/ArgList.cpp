@@ -41,18 +41,6 @@ void ArgList::getSlice(int startIndex, ArgList& result) const
     result.m_argCount =  m_argCount - startIndex;
 }
 
-MarkedArgumentBuffer::~MarkedArgumentBuffer()
-{
-    if (m_markSet)
-        m_markSet->remove(this);
-
-    if (EncodedJSValue* base = mallocBase())
-    {
-        // printf("freeing buffer: %p\n", base);
-        delete [] base;
-    }
-}
-
 void MarkedArgumentBuffer::markLists(HeapRootVisitor& heapRootVisitor, ListSet& markSet)
 {
     ListSet::iterator end = markSet.end();
