@@ -113,7 +113,7 @@ inline uint32_t toUInt32(double number)
     return toInt32(number);
 }
 
-class JSValue {
+class JS_EXPORT_PRIVATE JSValue {
     friend struct EncodedJSValueHashTraits;
     friend class AssemblyHelpers;
     friend class JIT;

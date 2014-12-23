@@ -37,6 +37,7 @@ namespace JSC {
 class CopyVisitor;
 class ExecState;
 class JSArrayBufferView;
+class ArrayBufferView;
 class JSDestructibleObject;
 class JSGlobalObject;
 class LLIntOffsetsExtractor;
@@ -49,8 +50,8 @@ enum EnumerationMode {
     IncludeDontEnumProperties
 };
 
-template<typename T> void* allocateCell(Heap&);
-template<typename T> void* allocateCell(Heap&, size_t);
+template<typename T> JS_EXPORT_PRIVATE void* allocateCell(Heap&);
+template<typename T> JS_EXPORT_PRIVATE void* allocateCell(Heap&, size_t);
 
 #define DECLARE_EXPORT_INFO                                             \
     protected:                                                          \
@@ -64,7 +65,7 @@ template<typename T> void* allocateCell(Heap&, size_t);
     public:                                                             \
         static const ::JSC::ClassInfo* info() { return &s_info; }
 
-class JSCell {
+class JS_EXPORT_PRIVATE JSCell {
     friend class JSValue;
     friend class MarkedBlock;
     template<typename T> friend void* allocateCell(Heap&);

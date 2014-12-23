@@ -84,7 +84,7 @@ JS_EXPORT_PRIVATE const ClassInfo* getFloat64ArrayClassInfo();
 // };
 
 template<typename Adaptor>
-class JSGenericTypedArrayView : public JSArrayBufferView {
+class JS_EXPORT_PRIVATE JSGenericTypedArrayView : public JSArrayBufferView {
 public:
     typedef JSArrayBufferView Base;
     static const unsigned elementSize = sizeof(typename Adaptor::Type);

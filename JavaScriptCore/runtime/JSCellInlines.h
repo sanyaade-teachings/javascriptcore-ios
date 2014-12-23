@@ -102,9 +102,9 @@ void* allocateCell(Heap& heap, size_t size)
     result->clearStructure();
     return result;
 }
-    
-template<typename T>
-void* allocateCell(Heap& heap)
+
+template<typename T> JS_EXPORT_PRIVATE
+inline void* allocateCell(Heap& heap)
 {
     return allocateCell<T>(heap, sizeof(T));
 }

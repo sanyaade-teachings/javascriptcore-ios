@@ -182,7 +182,7 @@ namespace JSC {
         }
     };
 
-    class Interpreter {
+    class JS_EXPORT_PRIVATE Interpreter {
         WTF_MAKE_FAST_ALLOCATED;
         friend class CachedCall;
         friend class LLIntOffsetsExtractor;
@@ -261,7 +261,10 @@ namespace JSC {
 
         JSValue execute(CallFrameClosure&);
 
-        void getStackTrace(Vector<StackFrame>& results, size_t maxStackSize = std::numeric_limits<size_t>::max());
+    public:
+        JS_EXPORT_PRIVATE void getStackTrace(Vector<StackFrame>& results,
+                                             size_t maxStackSize = std::numeric_limits<size_t>::max());
+    private:
 
         void dumpRegisters(CallFrame*);
         

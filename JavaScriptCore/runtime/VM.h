@@ -178,6 +178,11 @@ namespace JSC {
 
     class VM : public ThreadSafeRefCounted<VM> {
     public:
+
+        // used to ensure that client code has the same understanding
+        // of class size.
+        JS_EXPORT_PRIVATE static const size_t _sizeOfClass;
+
         // WebCore has a one-to-one mapping of threads to VMs;
         // either create() or createLeaked() should only be called once
         // on a thread, this is the 'default' VM (it uses the

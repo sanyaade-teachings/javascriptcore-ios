@@ -157,7 +157,7 @@ public:
     bool hasArrayBuffer() const { return JSC::hasArrayBuffer(mode()); }
     
     ArrayBuffer* buffer();
-    PassRefPtr<ArrayBufferView> impl();
+    JS_EXPORT_PRIVATE PassRefPtr<ArrayBufferView> impl();
     void neuter();
     
     void* vector() { return m_vector; }

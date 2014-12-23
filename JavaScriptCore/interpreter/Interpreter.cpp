@@ -573,6 +573,8 @@ private:
     size_t m_remainingCapacityForFrameCapture;
 };
 
+
+JS_EXPORT_PRIVATE
 void Interpreter::getStackTrace(Vector<StackFrame>& results, size_t maxStackSize)
 {
     VM& vm = m_vm;

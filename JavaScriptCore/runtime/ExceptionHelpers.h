@@ -41,7 +41,7 @@ JS_EXPORT_PRIVATE bool isTerminatedExecutionException(JSValue);
 JS_EXPORT_PRIVATE JSObject* createError(ExecState*, ErrorFactory, JSValue, const String&);
 JS_EXPORT_PRIVATE JSObject* createStackOverflowError(ExecState*);
 JSObject* createStackOverflowError(JSGlobalObject*);
-JSObject* createOutOfMemoryError(JSGlobalObject*);
+JS_EXPORT_PRIVATE JSObject* createOutOfMemoryError(JSGlobalObject*);
 JSObject* createUndefinedVariableError(ExecState*, const Identifier&);
 JSObject* createNotAnObjectError(ExecState*, JSValue);
 JSObject* createInvalidParameterError(ExecState*, const char* op, JSValue);

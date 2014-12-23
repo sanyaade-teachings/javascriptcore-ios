@@ -41,7 +41,7 @@ template<typename T> class Weak;
 template<typename T> class WriteBarrierBase;
 template<typename T> class JITWriteBarrier;
 
-class SlotVisitor {
+class JS_EXPORT_PRIVATE SlotVisitor {
     WTF_MAKE_NONCOPYABLE(SlotVisitor);
     friend class HeapRootVisitor; // Allowed to mark a JSValue* or JSCell** directly.
 
@@ -52,7 +52,7 @@ public:
     void append(ConservativeRoots&);
     
     template<typename T> void append(JITWriteBarrier<T>*);
-    template<typename T> void append(WriteBarrierBase<T>*);
+    template<typename T> JS_EXPORT_PRIVATE void append(WriteBarrierBase<T>*);
     template<typename Iterator> void append(Iterator begin , Iterator end);
     void appendValues(WriteBarrierBase<Unknown>*, size_t count);
     

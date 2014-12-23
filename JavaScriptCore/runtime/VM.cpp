@@ -157,6 +157,8 @@ static bool enableAssembler(ExecutableAllocator& executableAllocator)
 }
 #endif // ENABLE(!ASSEMBLER)
 
+const size_t   VM::_sizeOfClass = sizeof(VM);
+
 VM::VM(VMType vmType, HeapType heapType)
     : m_apiLock(adoptRef(new JSLock(this)))
 #if ENABLE(ASSEMBLER)

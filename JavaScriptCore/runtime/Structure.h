@@ -70,7 +70,7 @@ static const unsigned initialOutOfLineCapacity = 4;
 // initial allocation.
 static const unsigned outOfLineGrowthFactor = 2;
 
-class Structure : public JSCell {
+class JS_EXPORT_PRIVATE Structure : public JSCell {
 public:
     friend class StructureTransitionTable;
 
@@ -468,7 +468,7 @@ private:
         return static_cast<StructureRareData*>(m_previousOrRareData.get());
     }
         
-    bool checkOffsetConsistency() const;
+    JS_EXPORT_PRIVATE bool checkOffsetConsistency() const;
 
     void allocateRareData(VM&);
     void cloneRareDataFrom(VM&, const Structure*);
