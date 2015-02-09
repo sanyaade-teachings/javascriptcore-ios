@@ -552,11 +552,11 @@
 
 #if OS(UNIX)
 #define HAVE_ERRNO_H 1
-#define HAVE_MMAP 1   
+#define HAVE_MMAP 1
 #define HAVE_SIGNAL_H 1
 #define HAVE_STRINGS_H 1
 #define HAVE_SYS_PARAM_H 1
-#define HAVE_SYS_TIME_H 1 
+#define HAVE_SYS_TIME_H 1
 #define WTF_USE_PTHREADS 1
 #endif /* OS(UNIX) */
 
@@ -580,7 +580,7 @@
 #endif
 #endif
 
-#if !OS(WINDOWS) && !OS(SOLARIS)
+#if !OS(WINDOWS) && !OS(SOLARIS) && !OS(FREEBSD)
 #define HAVE_TM_GMTOFF 1
 #define HAVE_TM_ZONE 1
 #define HAVE_TIMEGM 1

@@ -27,7 +27,7 @@
 #include "RAMSize.h"
 
 #include "StdLibExtras.h"
-#if OS(DARWIN)
+#if OS(DARWIN) || OS(FREEBSD)
 #include <sys/param.h>
 #include <sys/types.h>
 #include <sys/sysctl.h>
@@ -45,7 +45,7 @@ static const size_t ramSizeGuess = 128 * MB;
 
 static size_t computeRAMSize()
 {
-#if OS(DARWIN)
+#if OS(DARWIN) || OS(FREEBSD)
     int mib[2];
     uint64_t ramSize;
     size_t length;

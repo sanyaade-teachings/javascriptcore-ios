@@ -54,7 +54,11 @@ inline void initializeRandomNumberGenerator()
     // srandomdev is not guaranteed to exist on linux so we use this poor seed, this should be improved
     timeval time;
     gettimeofday(&time, 0);
+# if OS(FREEBSD)
+    srand(static_cast<unsigned>(time.tv_usec * getpid()));
+# else
     srandom(static_cast<unsigned>(time.tv_usec * getpid()));
+# endif
 #else
     srand(static_cast<unsigned>(time(0)));
 #endif

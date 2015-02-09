@@ -44,6 +44,9 @@
 #if !(OS(DARWIN) && PLATFORM(GTK)) && !OS(QNX) && !PLATFORM(EFL) && !defined(_LIBCPP_VERSION) && !PLATFORM(NIX)
 
 #include <ctype.h>
+#if OS(FREEBSD)
+# include <cctype>
+#endif
 
 #undef isalnum
 #undef isalpha
