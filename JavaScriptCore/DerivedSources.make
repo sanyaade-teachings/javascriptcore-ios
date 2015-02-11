@@ -61,10 +61,12 @@ all : \
 
 # lookup tables for classes
 
-%.lut.h: create_hash_table %.cpp
-	$^ -i > $@
-Lexer.lut.h: create_hash_table Keywords.table
-	$^ > $@
+# %.lut.h: %.cpp
+%.lut.h: %.cpp create_hash_table
+	./create_hash_table $< -i > $@
+# Lexer.lut.h: Keywords.table
+Lexer.lut.h: Keywords.table create_hash_table
+	./create_hash_table $< > $@
 
 # character tables for Yarr
 

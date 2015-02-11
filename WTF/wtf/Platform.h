@@ -560,7 +560,7 @@
 #define WTF_USE_PTHREADS 1
 #endif /* OS(UNIX) */
 
-#if OS(UNIX) && !OS(QNX)
+#if OS(UNIX) && !OS(QNX) && !OS(FREEBSD)
 #define HAVE_LANGINFO_H 1
 #endif
 

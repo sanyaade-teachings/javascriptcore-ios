@@ -51,14 +51,6 @@
 #include <wtf/Noncopyable.h>
 #include <wtf/text/WTFString.h>
 
-#if OS(FREEBSD)
-inline struct tm *localtime_r(const time_t *_Restrict localTime,
-                              struct tm *_Restrict localTM)
-{
-    return localtime_s(localTime, localTM);
-}
-#endif
-
 namespace WTF {
 
 struct LocalTimeOffset {
