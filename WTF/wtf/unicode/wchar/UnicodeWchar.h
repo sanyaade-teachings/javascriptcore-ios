@@ -26,6 +26,7 @@
 #define WTF_UnicodeWchar_h
 
 #include <stdint.h>
+#include <wctype.h>
 #include <wchar.h>
 #include <wtf/unicode/ScriptCodesFromICU.h>
 #include <wtf/unicode/UnicodeMacrosFromICU.h>
