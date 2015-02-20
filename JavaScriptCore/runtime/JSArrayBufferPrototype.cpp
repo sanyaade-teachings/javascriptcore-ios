@@ -38,18 +38,22 @@ namespace JSC {
 static EncodedJSValue JSC_HOST_CALL arrayBufferProtoFuncSlice(ExecState* exec)
 {
     JSFunction* callee = jsCast<JSFunction*>(exec->callee());
-    
+
     JSArrayBuffer* thisObject = jsDynamicCast<JSArrayBuffer*>(exec->thisValue());
     if (!thisObject)
         return throwVMError(exec, createTypeError(exec, "Receiver of slice must be an array buffer."));
-    
-    if (!exec->argumentCount())
-        return throwVMError(exec, createTypeError(exec, "Slice requires at least one argument."));
-    
-    int32_t begin = exec->argument(0).toInt32(exec);
+
+    // if (!exec->argumentCount())
+    //     return throwVMError(exec, createTypeError(exec, "Slice requires at least one argument."));
+
+    int32_t begin;
+    if (0 != exec->argumentCount())
+        begin = exec->argument(0).toInt32(exec);
+    else
+        begin = 0;
     if (exec->hadException())
         return JSValue::encode(jsUndefined());
-    
+
     int32_t end;
     if (exec->argumentCount() >= 2) {
         end = exec->uncheckedArgument(1).toInt32(exec);
